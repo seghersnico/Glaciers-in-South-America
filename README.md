@@ -29,7 +29,7 @@ The key steps involved are:
     * The average glacier mass balance time series was detrended to remove any linear trends that might obscure periodic signals.
     * Welch's method was applied to the detrended data to estimate the Power Spectral Density. PSD reveals the distribution of a signal's power over frequency, allowing us to identify dominant periodic components. Peaks in the PSD plot correspond to strong periodicities.
 4.  **Climate Oscillation Overlay:**
-    * Kernel Density Estimation (KDE) was used to represent the user-defined return periods of ENSO and PDO. KDE provides a smoothed representation of the distribution of these periods.
+    * Kernel Density Estimation (KDE) was used to represent the historic periods between ENSO and PDO events. KDE provides a smoothed representation of the distribution of these periods.
     * These KDEs were then scaled and overlaid onto the glacier mass balance PSD plot. This visual comparison helps in identifying areas where glacier periodicities align with climate oscillation periodicities.
     * Reference ranges (e.g., 2-7 years for ENSO, 20-30 years for PDO) were also indicated on the plot for further context.
 5.  **Peak Analysis:** Prominent peaks within the ENSO (2-7 years) and PDO (20-30 years) frequency ranges were identified and quantified to assess their significance in the glacier mass balance spectrum.
@@ -47,9 +47,9 @@ The spectral analysis of the average glacier mass balance reveals distinct perio
 
 ![Spectral Power Density of Average Glacier Mass Balance & Climate Oscillation Return Periods](plot.png)
 
-* **ENSO Range (2-7 years):** A significant peak is observed within this range, indicating a strong periodicity in glacier mass balance that aligns with the typical return periods of ENSO events. The Kernel Density Estimate (KDE) for user-defined ENSO periods shows a clear overlap with this peak, suggesting a direct influence of ENSO on glacier mass fluctuations. The analysis identified a highest peak in the ENSO range at approximately **3.6 years** with a PSD of **5.4549**.
+* **ENSO Range (2-7 years):** A significant peak is observed within this range, indicating a strong periodicity in glacier mass balance that aligns with the typical return periods of ENSO events. The Kernel Density Estimate (KDE) for user-defined ENSO periods shows a clear overlap with this peak, suggesting a direct influence of ENSO on glacier mass fluctuations. The analysis identified a highest peak in the ENSO range at approximately **2.7 years** with a PSD of **6.3**.
 
-* **PDO Range (20-30 years):** Another prominent peak is evident around the 20-year mark, falling within the known PDO reference range. The KDE for PDO return periods also shows a strong alignment with this peak. This indicates that longer-term decadal oscillations, like the PDO, also exert a considerable influence on the average glacier mass balance. The analysis identified a highest peak in the PDO range at approximately **20.0 years** with a PSD of **6.2307**.
+* **PDO Range (20-30 years):** Another prominent peak is evident around the 20-year mark, falling within the known PDO reference range. The KDE for PDO return periods also shows a strong alignment with this peak. This indicates that longer-term decadal oscillations, like the PDO, also exert a considerable influence on the average glacier mass balance. The analysis identified a highest peak in the PDO range at approximately **21.3 years** with a PSD of **7.5**.
 
 The scaling of the KDEs was adjusted to visually compare their densities with the magnitude of the PSD peaks, providing a qualitative measure of correlation. The presence of these synchronized peaks strongly suggests that large-scale climate oscillations are significant drivers of glacier mass balance variability.
 

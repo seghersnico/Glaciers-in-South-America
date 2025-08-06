@@ -152,7 +152,7 @@ def _plot_psd_base(ax, psd_periods, psd_values, title_prefix=""):
         psd_values (np.array): PSD values.
         title_prefix (str): Prefix for the plot title (e.g., "Average Glacier").
     """
-    sns.lineplot(x=psd_periods, y=psd_values, marker='o', markersize=4, color='darkgreen',
+    sns.lineplot(x=psd_periods, y=psd_values, marker='o', markersize=4, color='teal',
                  label=f'{title_prefix} Mass Balance (PSD - Welch)', ax=ax)
 
     ax.set_title(f'Spectral Power Density of {title_prefix} Mass Balance')
@@ -192,9 +192,9 @@ def _add_climate_overlays(ax, psd_values, psd_periods):
     kde_enso_scaling_factor = _calculate_kde_scaling(psd_values, psd_periods, 2, 7, kde_enso_y_density)
     kde_enso_y_density_scaled = kde_enso_y_density * kde_enso_scaling_factor
 
-    sns.lineplot(x=kde_enso_x_values_periods, y=kde_enso_y_density_scaled, color='blue', linestyle='--', linewidth=2,
-                 label='ENSO Return Periods (Your data - KDE)', ax=ax)
-    ax.fill_between(kde_enso_x_values_periods, kde_enso_y_density_scaled, color='blue', alpha=0.1)
+    sns.lineplot(x=kde_enso_x_values_periods, y=kde_enso_y_density_scaled, color='orange', linestyle='--', linewidth=2,
+                 label='ENSO - KDE', ax=ax)
+    ax.fill_between(kde_enso_x_values_periods, kde_enso_y_density_scaled, color='orange', alpha=0.1)
 
     # --- KDE for PDO return periods ---
     kde_pdo = stats.gaussian_kde(pdo_return_periods_user)
@@ -204,18 +204,18 @@ def _add_climate_overlays(ax, psd_values, psd_periods):
     kde_pdo_y_density_scaled = kde_pdo_y_density * kde_pdo_scaling_factor
 
     sns.lineplot(x=kde_pdo_x_values_periods, y=kde_pdo_y_density_scaled, color='magenta', linestyle='-.', linewidth=2,
-                 label='PDO Return Periods (Your data - KDE)', ax=ax)
+                 label='PDO - KDE', ax=ax)
     ax.fill_between(kde_pdo_x_values_periods, kde_pdo_y_density_scaled, color='magenta', alpha=0.1)
 
     # Add reference ranges
-    ax.axvspan(2.0, 7.0, color='lightgreen', alpha=0.2, label='ENSO Range (2-7 years)')
-    ax.axvline(x=2.0, color='green', linestyle=':', label='2-year cycle')
-    ax.axvline(x=5.0, color='darkgreen', linestyle=':', label='5-year cycle')
+    ax.axvspan(2.0, 7.0, color='gold', alpha=0.2, label='ENSO Range (2-7 years)')
+    #ax.axvline(x=2.0, color='green', linestyle=':', label='2-year cycle')
+    #ax.axvline(x=5.0, color='darkgreen', linestyle=':', label='5-year cycle')
 
     min_period_pdo_ref = 20
     max_period_pdo_ref = 30
     ax.axvspan(min_period_pdo_ref, max_period_pdo_ref, color='purple', alpha=0.1, label='PDO Reference Range (20-30 years)')
-    ax.axvline(x=20.0, color='red', linestyle='--', label='20-year cycle')
+    #ax.axvline(x=20.0, color='red', linestyle='--', label='20-year cycle')
 
     # Update title with full context if overlays are included
     ax.set_title(f'{ax.get_title()} & Climate Oscillation Return Periods')
@@ -321,19 +321,19 @@ def plot_spectral_mass_balance(glacier_long_df, include_overlays=True, title_pre
 
     if include_overlays:
         _add_climate_overlays(ax, psd_values, psd_periods)
-        interpretation_text = "\nInterpretation of the combined PSD plot:"
-        interpretation_text += "\n- The dark green line represents the Power Spectral Density (PSD) of the glacier mass balance data, calculated using Welch's method."
-        interpretation_text += "\n- The Y-axis shows 'Power Spectral Density', which is a measure of energy per frequency unit."
-        interpretation_text += "\n- Peaks in the PSD plot are generally 'smoother' and more reliable than those from a single FFT, thanks to segmentation and averaging."
-        interpretation_text += "\n- The blue and magenta lines are the scaled Kernel Density Estimates (KDEs) of your specified ENSO and PDO return periods."
-        interpretation_text += "\n- Where the KDE peaks overlap with the PSD peaks, there is a strong correlation between the periodicity of your climate events and the energy distribution in the glacier mass balance."
-        interpretation_text += "\n  Note: The scaling factors for the KDEs are adjusted based on the expected PSD values for better visual comparison."
-        interpretation_text += "\n  You can experiment with the '* 0.7' scaling factor in the KDE scaling helper function to adjust the relative height for optimal visual comparison."
-    else:
-        interpretation_text = "\nInterpretation of the PSD plot (no overlays):"
-        interpretation_text += "\n- The dark green line represents the Power Spectral Density (PSD) of the glacier mass balance data, calculated using Welch's method."
-        interpretation_text += "\n- Peaks in the PSD plot indicate dominant periodicities (cycles) in the mass balance data."
-        interpretation_text += "\n- The Y-axis shows 'Power Spectral Density', a measure of the energy of these cycles."
+        #interpretation_text = "\nInterpretation of the combined PSD plot:"
+        #interpretation_text += "\n- The dark green line represents the Power Spectral Density (PSD) of the glacier mass balance data, calculated using Welch's method."
+        #interpretation_text += "\n- The Y-axis shows 'Power Spectral Density', which is a measure of energy per frequency unit."
+        #interpretation_text += "\n- Peaks in the PSD plot are generally 'smoother' and more reliable than those from a single FFT, thanks to segmentation and averaging."
+        #interpretation_text += "\n- The blue and magenta lines are the scaled Kernel Density Estimates (KDEs) of your specified ENSO and PDO return periods."
+        #interpretation_text += "\n- Where the KDE peaks overlap with the PSD peaks, there is a strong correlation between the periodicity of your climate events and the energy distribution in the glacier mass balance."
+        #interpretation_text += "\n  Note: The scaling factors for the KDEs are adjusted based on the expected PSD values for better visual comparison."
+        #interpretation_text += "\n  You can experiment with the '* 0.7' scaling factor in the KDE scaling helper function to adjust the relative height for optimal visual comparison."
+    #else:
+        #interpretation_text = "\nInterpretation of the PSD plot (no overlays):"
+        #interpretation_text += "\n- The dark green line represents the Power Spectral Density (PSD) of the glacier mass balance data, calculated using Welch's method."
+        #interpretation_text += "\n- Peaks in the PSD plot indicate dominant periodicities (cycles) in the mass balance data."
+        #interpretation_text += "\n- The Y-axis shows 'Power Spectral Density', a measure of the energy of these cycles."
 
     plt.legend(loc='upper right', framealpha=0.9)
     plt.tight_layout()
@@ -341,7 +341,7 @@ def plot_spectral_mass_balance(glacier_long_df, include_overlays=True, title_pre
 
     # This function call performs the ENSO and PDO peak analysis and prints to console.
     _analyze_prominent_peaks(psd_frequencies, psd_values, psd_periods)
-    print(interpretation_text)
+    #print(interpretation_text)
 
 
 def plot_glacier_locations(glacier_long_df):
@@ -382,7 +382,7 @@ def plot_glacier_locations(glacier_long_df):
     )
 
     # Finishing touches
-    ax.set_title('Glacier Locations by Region with Landmass Background', fontsize=16)
+    ax.set_title('Glacier Locations by Region', fontsize=16)
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
     plt.tight_layout()
