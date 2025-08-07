@@ -52,7 +52,7 @@ def load_glacier_data(file_path):
     glacier_long['Year'] = pd.to_numeric(glacier_long['Year'], errors='coerce')
     return glacier_raw, glacier_long
 
-def plot_average_mass_balance(glacier_long_df):
+def plot_average_mass_balance(glacier_long_df, line_color='midnightblue'):
     """
     Plots the average annual mass balance across all glaciers.
 
@@ -62,15 +62,15 @@ def plot_average_mass_balance(glacier_long_df):
     # Calculate the average mass balance per year, ignoring NaN values
     average_mass_balance = glacier_long_df.groupby('Year')['Mass_Balance'].mean().reset_index()
 
-    plt.figure(figsize=(12, 6))
-    sns.lineplot(data=average_mass_balance, x='Year', y='Mass_Balance', marker='o')
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(data=average_mass_balance, x = 'Year', y = 'Mass_Balance', color = line_color)
     plt.title('Average Annual Mass Balance Across All Glaciers')
     plt.xlabel('Year')
-    plt.ylabel('Mass Balance (m w.e.)')
-    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.ylabel('Mass Balance')
+    plt.grid(True, linestyle='-', alpha=0.7)
     plt.show()
 
-def _prepare_mass_balance_for_psd(glacier_long_df):
+def prepare_mass_balance_for_psd(glacier_long_df):
     """
     Prepares the average mass balance time series for PSD analysis.
 
@@ -89,7 +89,7 @@ def _prepare_mass_balance_for_psd(glacier_long_df):
 
     return detrend(mass_balance_values)
 
-def _calculate_psd_welch(detrended_data):
+def calculate_psd_welch(detrended_data):
     """
     Calculates Power Spectral Density (PSD) using Welch's method.
 
@@ -119,7 +119,7 @@ def _calculate_psd_welch(detrended_data):
     psd_periods = 1 / psd_frequencies
     return psd_frequencies, psd_values, psd_periods
 
-def _calculate_kde_scaling(psd_values, psd_periods, min_period, max_period, kde_y_density):
+def calculate_kde_scaling(psd_values, psd_periods, min_period, max_period, kde_y_density):
     """
     Helper function to calculate the scaling factor for KDE plots based on PSD values.
 
@@ -139,10 +139,10 @@ def _calculate_kde_scaling(psd_values, psd_periods, min_period, max_period, kde_
         target_value_psd = np.max(range_psd_values)
     
     scaling_factor = target_value_psd / np.max(kde_y_density) if np.max(kde_y_density) > 0 else 1.0
-    return scaling_factor * 0.7 # Adjust this multiplier for visual height
+    return scaling_factor * 0.9 # Adjust this multiplier for visual height
 
 
-def _plot_psd_base(ax, psd_periods, psd_values, title_prefix=""):
+def plot_psd_base(ax, psd_periods, psd_values, title_prefix=""):
     """
     Plots the base Power Spectral Density (PSD) line.
 
@@ -152,7 +152,7 @@ def _plot_psd_base(ax, psd_periods, psd_values, title_prefix=""):
         psd_values (np.array): PSD values.
         title_prefix (str): Prefix for the plot title (e.g., "Average Glacier").
     """
-    sns.lineplot(x=psd_periods, y=psd_values, marker='o', markersize=4, color='teal',
+    sns.lineplot(x=psd_periods, y=psd_values, markersize=4, color='midnightblue',
                  label=f'{title_prefix} Mass Balance (PSD - Welch)', ax=ax)
 
     ax.set_title(f'Spectral Power Density of {title_prefix} Mass Balance')
@@ -173,7 +173,7 @@ def _plot_psd_base(ax, psd_periods, psd_values, title_prefix=""):
     ax.set_xticklabels([f'{p:.0f}' for p in valid_periods_for_ticks])
 
 
-def _add_climate_overlays(ax, psd_values, psd_periods):
+def add_climate_overlays(ax, psd_values, psd_periods):
     """
     Adds KDEs for climate oscillations and reference vertical lines/shaded zones
     to an existing PSD plot.
@@ -189,26 +189,26 @@ def _add_climate_overlays(ax, psd_values, psd_periods):
     kde_enso = stats.gaussian_kde(enso_return_periods_user)
     kde_enso_x_values_periods = np.linspace(1.0, 7.5, 500)
     kde_enso_y_density = kde_enso(kde_enso_x_values_periods)
-    kde_enso_scaling_factor = _calculate_kde_scaling(psd_values, psd_periods, 2, 7, kde_enso_y_density)
+    kde_enso_scaling_factor = calculate_kde_scaling(psd_values, psd_periods, 2, 7, kde_enso_y_density)
     kde_enso_y_density_scaled = kde_enso_y_density * kde_enso_scaling_factor
 
-    sns.lineplot(x=kde_enso_x_values_periods, y=kde_enso_y_density_scaled, color='orange', linestyle='--', linewidth=2,
+    sns.lineplot(x=kde_enso_x_values_periods, y=kde_enso_y_density_scaled, color='chocolate', linestyle='--', linewidth=2,
                  label='ENSO - KDE', ax=ax)
-    ax.fill_between(kde_enso_x_values_periods, kde_enso_y_density_scaled, color='orange', alpha=0.1)
+    ax.fill_between(kde_enso_x_values_periods, kde_enso_y_density_scaled, color='chocolate', alpha=0.1)
 
     # --- KDE for PDO return periods ---
     kde_pdo = stats.gaussian_kde(pdo_return_periods_user)
     kde_pdo_x_values_periods = np.linspace(15, 25, 500)
     kde_pdo_y_density = kde_pdo(kde_pdo_x_values_periods)
-    kde_pdo_scaling_factor = _calculate_kde_scaling(psd_values, psd_periods, 20, 30, kde_pdo_y_density)
+    kde_pdo_scaling_factor = calculate_kde_scaling(psd_values, psd_periods, 20, 30, kde_pdo_y_density)
     kde_pdo_y_density_scaled = kde_pdo_y_density * kde_pdo_scaling_factor
 
-    sns.lineplot(x=kde_pdo_x_values_periods, y=kde_pdo_y_density_scaled, color='magenta', linestyle='-.', linewidth=2,
+    sns.lineplot(x=kde_pdo_x_values_periods, y=kde_pdo_y_density_scaled, color='purple', linestyle='-.', linewidth=2,
                  label='PDO - KDE', ax=ax)
-    ax.fill_between(kde_pdo_x_values_periods, kde_pdo_y_density_scaled, color='magenta', alpha=0.1)
+    ax.fill_between(kde_pdo_x_values_periods, kde_pdo_y_density_scaled, color='purple', alpha=0.1)
 
     # Add reference ranges
-    ax.axvspan(2.0, 7.0, color='gold', alpha=0.2, label='ENSO Range (2-7 years)')
+    ax.axvspan(2.0, 7.0, color='chocolate', alpha=0.2, label='ENSO Range (2-7 years)')
     #ax.axvline(x=2.0, color='green', linestyle=':', label='2-year cycle')
     #ax.axvline(x=5.0, color='darkgreen', linestyle=':', label='5-year cycle')
 
@@ -221,7 +221,7 @@ def _add_climate_overlays(ax, psd_values, psd_periods):
     ax.set_title(f'{ax.get_title()} & Climate Oscillation Return Periods')
 
 
-def _analyze_prominent_peaks(psd_frequencies, psd_values, psd_periods):
+def analyze_prominent_peaks(psd_frequencies, psd_values, psd_periods):
     """
     Analyzes and prints information about prominent peaks in specified period ranges.
     Variables are initialized to np.nan to prevent NameError if no peak is found in a range,
@@ -308,39 +308,26 @@ def plot_spectral_mass_balance(glacier_long_df, include_overlays=True, title_pre
     """
     print(f"\n--- Starting Spectral Power Density (PSD) Analysis for {title_prefix} ---")
 
-    detrended_mass_balance = _prepare_mass_balance_for_psd(glacier_long_df)
+    detrended_mass_balance = prepare_mass_balance_for_psd(glacier_long_df)
     if detrended_mass_balance is None:
         return # Exit if data is insufficient
 
-    psd_frequencies, psd_values, psd_periods = _calculate_psd_welch(detrended_mass_balance)
+    psd_frequencies, psd_values, psd_periods = calculate_psd_welch(detrended_mass_balance)
 
-    plt.figure(figsize=(15, 8))
+    plt.figure(figsize=(10, 6))
     ax = plt.gca()
 
-    _plot_psd_base(ax, psd_periods, psd_values, title_prefix=title_prefix)
+    plot_psd_base(ax, psd_periods, psd_values, title_prefix=title_prefix)
 
     if include_overlays:
-        _add_climate_overlays(ax, psd_values, psd_periods)
-        #interpretation_text = "\nInterpretation of the combined PSD plot:"
-        #interpretation_text += "\n- The dark green line represents the Power Spectral Density (PSD) of the glacier mass balance data, calculated using Welch's method."
-        #interpretation_text += "\n- The Y-axis shows 'Power Spectral Density', which is a measure of energy per frequency unit."
-        #interpretation_text += "\n- Peaks in the PSD plot are generally 'smoother' and more reliable than those from a single FFT, thanks to segmentation and averaging."
-        #interpretation_text += "\n- The blue and magenta lines are the scaled Kernel Density Estimates (KDEs) of your specified ENSO and PDO return periods."
-        #interpretation_text += "\n- Where the KDE peaks overlap with the PSD peaks, there is a strong correlation between the periodicity of your climate events and the energy distribution in the glacier mass balance."
-        #interpretation_text += "\n  Note: The scaling factors for the KDEs are adjusted based on the expected PSD values for better visual comparison."
-        #interpretation_text += "\n  You can experiment with the '* 0.7' scaling factor in the KDE scaling helper function to adjust the relative height for optimal visual comparison."
-    #else:
-        #interpretation_text = "\nInterpretation of the PSD plot (no overlays):"
-        #interpretation_text += "\n- The dark green line represents the Power Spectral Density (PSD) of the glacier mass balance data, calculated using Welch's method."
-        #interpretation_text += "\n- Peaks in the PSD plot indicate dominant periodicities (cycles) in the mass balance data."
-        #interpretation_text += "\n- The Y-axis shows 'Power Spectral Density', a measure of the energy of these cycles."
+        add_climate_overlays(ax, psd_values, psd_periods)
 
     plt.legend(loc='upper right', framealpha=0.9)
     plt.tight_layout()
     plt.show()
 
     # This function call performs the ENSO and PDO peak analysis and prints to console.
-    _analyze_prominent_peaks(psd_frequencies, psd_values, psd_periods)
+    analyze_prominent_peaks(psd_frequencies, psd_values, psd_periods)
     #print(interpretation_text)
 
 
@@ -364,26 +351,31 @@ def plot_glacier_locations(glacier_long_df):
 
     # Plotting
     sns.set_style("whitegrid")
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(10, 6))
     land.plot(ax=ax, color='lightgray', edgecolor='white')
-
+    
     # Use a scatter plot for glaciers to allow more customization than default gdf.plot
     sns.scatterplot(
         x=gdf.geometry.x,
         y=gdf.geometry.y,
-        hue=gdf['REGION'],
-        palette='viridis',
-        size=gdf['Area'], # Size markers by glacier area if desired
-        sizes=(20, 200), # Min and max marker sizes
-        legend=False, # Set to False to remove the legend
+        color='olive',  # Stel hier uw gewenste kleur in
+        edgecolor='olive',
+        size=gdf['Area'],
+        sizes=(20, 200),
+        legend=False,
         ax=ax,
-        edgecolor='black',
-        alpha=0.7
+        #alpha=0.7
     )
 
     # Finishing touches
-    ax.set_title('Glacier Locations by Region', fontsize=16)
+    ax.set_title('Glacier Locations', fontsize=16)
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
+    x_ticks = ax.get_xticks()
+    ax.set_xticks(x_ticks) # <--- Voeg deze regel toe
+    ax.set_xticklabels([f'{int(tick)}°' for tick in x_ticks])
+    y_ticks = ax.get_yticks()
+    ax.set_yticks(y_ticks) # <--- Voeg deze regel toe
+    ax.set_yticklabels([f'{int(tick)}°' for tick in y_ticks])
     plt.tight_layout()
     plt.show()
